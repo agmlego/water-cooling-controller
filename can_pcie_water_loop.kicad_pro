@@ -57,9 +57,12 @@
       ],
       "drc_exclusions": [
         "unconnected_items|150000000|50000000|b593bd5d-a2a8-4016-96a6-608d1560c1dc|2cd7e9dd-9d9f-4886-a870-8acb5cd44975",
+        "unconnected_items|150000000|50000000|b593bd5d-a2a8-4016-96a6-608d1560c1dc|c3c51af7-f6bd-4498-b6fa-3cfeb947213c",
         "unconnected_items|151000000|50000000|2cd7e9dd-9d9f-4886-a870-8acb5cd44975|12d4aa45-031d-44b7-a8bc-d2fe8454f5b3",
         "unconnected_items|151000000|50000000|2cd7e9dd-9d9f-4886-a870-8acb5cd44975|98f19850-2bfb-40de-90ef-ae1b3169e45a",
+        "unconnected_items|151000000|50000000|2cd7e9dd-9d9f-4886-a870-8acb5cd44975|c3c51af7-f6bd-4498-b6fa-3cfeb947213c",
         "unconnected_items|151000000|50000000|c3c51af7-f6bd-4498-b6fa-3cfeb947213c|2cd7e9dd-9d9f-4886-a870-8acb5cd44975",
+        "unconnected_items|151000000|50000000|c3c51af7-f6bd-4498-b6fa-3cfeb947213c|98f19850-2bfb-40de-90ef-ae1b3169e45a",
         "unconnected_items|152000000|50000000|12d4aa45-031d-44b7-a8bc-d2fe8454f5b3|98f19850-2bfb-40de-90ef-ae1b3169e45a",
         "unconnected_items|152000000|50000000|98f19850-2bfb-40de-90ef-ae1b3169e45a|12d4aa45-031d-44b7-a8bc-d2fe8454f5b3",
         "unconnected_items|157000000|50000000|ddd32adc-37a7-4e3e-b6a1-afdf79730506|00cf16b9-cd6b-40fa-8c73-0e181f5b3886",
