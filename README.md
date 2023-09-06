@@ -54,3 +54,9 @@ The external board listens to CAN and adjusts the chiller's power state and setp
 7. CAN_H
 8. N/C
 9. +5V
+
+## Chiller Controller
+### NF-A14 Control
+* PWM: 40μs period, 5Vpp
+* 8.76% minimum kickon => 468RPM (64ms/15.6Hz on tach.)
+* 100% => 3180RPM (9.4ms/106.4Hz on tach.)
