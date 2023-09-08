@@ -57,19 +57,20 @@ double reservoir_volume = 0.0;
 #define TEMPERATURE_PRECISION 9
 OneWire oneWire(ONE_WIRE);
 DallasTemperature sensors(&oneWire);
-DeviceAddress reservoir_temp = {0x28, 0xFF, 0x02, 0x5D, 0xC1, 0x17, 0x05, 0xCB};
 DeviceAddress outside_temp = {0x28, 0x4E, 0x6A, 0x45, 0x92, 0x17, 0x02, 0xEC};
+DeviceAddress reservoir_temp = {0x28, 0xFF, 0x02, 0x5D, 0xC1, 0x17, 0x05, 0xCB};
 float reservoir_temp_reading = 0.0;
 float outside_temp_reading = 0.0;
 float reservoir_setpoint = 20.0;
 float hysteresis = 2.0;
-unsigned long last_compressor = 0;
-unsigned long last_valve = 0;
-unsigned long compressor_time = 0;
-unsigned long valve_time = 0;
-const unsigned long valve_lockout = 30 * 1000;
-const unsigned long compressor_lockout = 60 * 1000;
+uint32_t last_compressor = 0;
+uint32_t last_valve = 0;
+uint32_t compressor_time = 0;
+uint32_t valve_time = 0;
+const uint32_t valve_lockout = 30 * 1000;
+const uint32_t compressor_lockout = 60 * 1000;
 
+void printAddress(DeviceAddress);
 int ringMeter(const char *, int, int, int, int, int, int, const char *);
 
 void setup()
@@ -134,10 +135,24 @@ void setup()
     lox.startRangeContinuous();
 
     sensors.begin();
-    if (!oneWire.search(reservoir_temp))
-        Serial.println("Unable to find address for reservoir_temp");
-    if (!oneWire.search(outside_temp))
+
+    if (!sensors.getAddress(outside_temp, 0))
         Serial.println("Unable to find address for outside_temp");
+    else
+    {
+        Serial.print("outside_temp Address: ");
+        printAddress(outside_temp);
+        Serial.println();
+    }
+
+    if (!sensors.getAddress(reservoir_temp, 1))
+        Serial.println("Unable to find address for reservoir_temp");
+    else
+    {
+        Serial.print("reservoir_temp Address: ");
+        printAddress(reservoir_temp);
+        Serial.println();
+    }
 
     sensors.setResolution(reservoir_temp, TEMPERATURE_PRECISION);
     sensors.setResolution(outside_temp, TEMPERATURE_PRECISION);
@@ -145,12 +160,12 @@ void setup()
 
 void loop()
 {
+    digitalWrite(LED_BUILTIN, LOW);
     if (lox.isRangeComplete())
     {
         reservoir_volume = (reservoir_height - lox.readRange()) * reservoir_area;
         resRA.addValue(reservoir_volume);
     }
-    digitalWrite(LED_BUILTIN, LOW);
     sensors_event_t temp_event, humidity_event;
     bme_temp->getEvent(&temp_event);
     bme_humidity->getEvent(&humidity_event);
@@ -176,7 +191,7 @@ void loop()
 
     if (reservoir_temp_reading > reservoir_setpoint + hysteresis)
     {
-        if (last_valve == 0)
+        if (digitalRead(VALVE_RLY) == LOW)
         {
             last_valve = millis();
             digitalWrite(VALVE_RLY, HIGH);
@@ -200,10 +215,8 @@ void loop()
         }
     }
 
-    Serial.printf("Volume: %.1fL\tDelta P: %.1f\tFlow SW: %d\tRes Temp: %.1fC\tSetpoint: %.1fC+/-%.1fC\tLast valve: %lums\tLockout %lums\tLast comp.: %lums\tLockout %lums\n",
-                  resRA.getAverage(),
+    Serial.printf("Delta P: %.1f\tRes Temp: %.1fC\tSetpoint: %.1fC+/-%.1fC\tLast valve: %lums\tLockout %lums\tLast comp.: %lums\tLockout %lums\n",
                   filterRA.getAverage(),
-                  digitalRead(FLOW_SW),
                   reservoir_temp_reading,
                   reservoir_setpoint,
                   hysteresis,
@@ -211,9 +224,19 @@ void loop()
                   valve_lockout,
                   compressor_time,
                   compressor_lockout);
-
+    if (digitalRead(PUMP_RLY) == HIGH && digitalRead(FLOW_SW) == HIGH)
+    {
+        // no flow but pump is running
+        digitalWrite(ALARMS_RLY, LOW);
+    }
+    else if (digitalRead(PUMP_RLY) == HIGH && digitalRead(FLOW_SW) == LOW)
+    {
+        // flow is OK with pump running
+        digitalWrite(ALARMS_RLY, HIGH);
+    }
     if (millis() - reading_time >= PAGE_DELAY)
     {
+        digitalWrite(LED_BUILTIN, HIGH);
         reading_time = millis();
         ++reading_state;
         if (reading_state >= 4)
@@ -250,6 +273,18 @@ void loop()
         default:
             break;
         }
+    }
+}
+
+// function to print a device address
+void printAddress(DeviceAddress deviceAddress)
+{
+    for (uint8_t i = 0; i < 8; i++)
+    {
+        // zero pad the address if necessary
+        if (deviceAddress[i] < 16)
+            Serial.print("0");
+        Serial.print(deviceAddress[i], HEX);
     }
 }
 
