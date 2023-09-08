@@ -71,7 +71,6 @@ int ringMeter(const char *, int, int, int, int, int, int, const char *);
 
 void setup()
 {
-    // put your setup code here, to run once:
     pinMode(FP_PWR_IN, INPUT_PULLUP);
     pinMode(PERST, INPUT_PULLUP);
     pinMode(LS_OE, OUTPUT);
@@ -161,7 +160,7 @@ void loop()
         {
         case 0:
             display.clearDisplay();
-            ringMeter("Case T", temp_event.temperature, 0, 100, 0, 0, GAUGE_RADIUS, "øC");
+            ringMeter("Case T", temp_event.temperature, 0, 100, 0, 0, GAUGE_RADIUS, "\xF8""C");
             ringMeter("Case RH", humidity_event.relative_humidity, 0, 100, SCREEN_WIDTH - 2 * GAUGE_RADIUS, 0, GAUGE_RADIUS, "%");
             display.display();
             break;
@@ -173,14 +172,14 @@ void loop()
             break;
         case 2:
             display.clearDisplay();
-            ringMeter("Int In", int_in_temp_reading, 0, 100, 0, 0, GAUGE_RADIUS, "øC");
-            ringMeter("Int Out", int_out_temp_reading, 0, 100, SCREEN_WIDTH - 2 * GAUGE_RADIUS, 0, GAUGE_RADIUS, "øC");
+            ringMeter("Int In", int_in_temp_reading, 0, 100, 0, 0, GAUGE_RADIUS, "\xF8""C");
+            ringMeter("Int Out", int_out_temp_reading, 0, 100, SCREEN_WIDTH - 2 * GAUGE_RADIUS, 0, GAUGE_RADIUS, "\xF8""C");
             display.display();
             break;
         case 3:
             display.clearDisplay();
-            ringMeter("Ext In", ext_in_temp_reading, 0, 100, 0, 0, GAUGE_RADIUS, "øC");
-            ringMeter("Ext Out", ext_out_temp_reading, 0, 100, SCREEN_WIDTH - 2 * GAUGE_RADIUS, 0, GAUGE_RADIUS, "øC");
+            ringMeter("Ext In", ext_in_temp_reading, 0, 100, 0, 0, GAUGE_RADIUS, "\xF8""C");
+            ringMeter("Ext Out", ext_out_temp_reading, 0, 100, SCREEN_WIDTH - 2 * GAUGE_RADIUS, 0, GAUGE_RADIUS, "\xF8""C");
             display.display();
             break;
         default:
