@@ -10,7 +10,7 @@ The external board listens to CAN and adjusts the chiller's power state and setp
 ## Internal PCIe Card
 
 | Pin | Type    | Signal | Direction | Purpose                                      |
-|-----|---------|--------|-----------|----------------------------------------------|
+| --- | ------- | ------ | --------- | -------------------------------------------- |
 | 1   | POWER   | GND    |           | Digital   ground plane                       |
 | 2   | DIGITAL | D0     | INPUT     | Internal loop flow sensor                    |
 | 3   | DIGITAL | D1     | INPUT     | External   loop flow sensor                  |
@@ -56,6 +56,25 @@ The external board listens to CAN and adjusts the chiller's power state and setp
 9. +5V
 
 ## Chiller Controller
+
+| Pin | Type    | Signal | Direction | Purpose                                      |
+| --- | ------- | ------ | --------- | -------------------------------------------- |
+| 1   | POWER   | GND    |           | Digital   ground plane                       |
+| 2   | DIGITAL | D0     | INPUT     | Top fan RPM sensor                           |
+| 3   | DIGITAL | D1     | INPUT     | Bottom fan RPM sensor                        |
+| 4   | 1-WIRE  | D2     | BIDI      | DS18B20 bus                                  |
+| 5   | CAN     | TX     | OUTPUT    | CAN   transmit                               |
+| 6   | CAN     | RX     | INPUT     | CAN receive                                  |
+| 7   | DIGITAL | D5     | OUTPUT    | Fan PWM                                      |
+| 10  | DIGITAL | D8     | INPUT     | Flow switch                                  |
+| 11  | DIGITAL | D9     | OUTPUT    | Pump relay                                   |
+| 12  | DIGITAL | D10    | OUTPUT    | Expansion valve relay                        |
+| 13  | DIGITAL | D11    | OUTPUT    | Compressor relay                             |
+| 14  | DIGITAL | D11    | OUTPUT    | Status lights/buzzer relay                   |
+| 21  | ANALOG  | A0     | INPUT     | Filter check diff. pressure sensor           |
+| 25  | I2C     | SDA0   | BIDI      | Local I2C data                               |
+| 26  | I2C     | SCL0   | BIDI      | Local   I2C clock                            |
+
 ### NF-A14 Control
 * PWM: 40μs period, 5Vpp
 * 8.76% minimum kickon => 468RPM (64ms/15.6Hz on tach.)
