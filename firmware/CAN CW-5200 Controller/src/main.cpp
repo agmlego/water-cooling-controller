@@ -83,7 +83,7 @@ void setup()
     pinMode(VALVE_RLY, OUTPUT);
     pinMode(COMPRESSOR_RLY, OUTPUT);
     pinMode(ALARMS_RLY, OUTPUT);
-    digitalWrite(PUMP_RLY, HIGH);
+    digitalWrite(PUMP_RLY, LOW);
     digitalWrite(VALVE_RLY, LOW);
     digitalWrite(COMPRESSOR_RLY, LOW);
     digitalWrite(ALARMS_RLY, LOW);
