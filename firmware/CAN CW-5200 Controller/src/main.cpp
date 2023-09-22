@@ -84,7 +84,7 @@ void setup()
     pinMode(COMPRESSOR_RLY, OUTPUT);
     pinMode(ALARMS_RLY, OUTPUT);
     digitalWrite(PUMP_RLY, LOW);
-    digitalWrite(VALVE_RLY, LOW);
+    digitalWrite(VALVE_RLY, HIGH);
     digitalWrite(COMPRESSOR_RLY, LOW);
     digitalWrite(ALARMS_RLY, LOW);
 
@@ -191,10 +191,10 @@ void loop()
 
     if (reservoir_temp_reading > reservoir_setpoint + hysteresis)
     {
-        if (digitalRead(VALVE_RLY) == LOW)
+        if (digitalRead(VALVE_RLY) == HIGH)
         {
             last_valve = millis();
-            digitalWrite(VALVE_RLY, HIGH);
+            digitalWrite(VALVE_RLY, LOW);
         }
         if (valve_time >= valve_lockout && compressor_time >= compressor_lockout)
         {
@@ -211,7 +211,7 @@ void loop()
             last_valve = millis();
             bottom_fan.setDutyCycle(0);
             digitalWrite(COMPRESSOR_RLY, LOW);
-            digitalWrite(VALVE_RLY, LOW);
+            digitalWrite(VALVE_RLY, HIGH);
         }
     }
 
