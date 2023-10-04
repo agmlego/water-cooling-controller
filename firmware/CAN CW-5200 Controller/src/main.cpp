@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <FanController.h>
+#include <FreqMeasureMulti.h>
 #include <Adafruit_BME280.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -8,9 +8,9 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-#define TOP_FAN_RPM 0     // INPUT Top fan tach
-#define BOTTOM_FAN_RPM 1  // INPUT Bottom fan tach
-#define BOTTOM_FAN_PWM 5  // OUTPUT fan PWM signal
+#define TOP_FAN_RPM 5     // INPUT Top fan tach
+#define BOTTOM_FAN_RPM 6  // INPUT Bottom fan tach
+#define BOTTOM_FAN_PWM 20 // OUTPUT fan PWM signal
 #define FLOW_SW 8         // INPUT PULLUP flow switch; low == OK
 #define PUMP_RLY 9        // OUTPUT pump
 #define VALVE_RLY 10      // OUTPUT valve
@@ -23,10 +23,15 @@
 RunningAverage filterRA(100);
 
 #define SENSOR_THRESHOLD 1000
-FanController top_fan(TOP_FAN_RPM, SENSOR_THRESHOLD);
-FanController bottom_fan(BOTTOM_FAN_RPM, SENSOR_THRESHOLD, BOTTOM_FAN_PWM);
-unsigned int top_fan_reading = 0;
-unsigned int bottom_fan_reading = 0;
+const float HZ_TO_RPM = 30.0;
+float top_sum = 0;
+float bottom_sum = 0;
+uint32_t top_count = 0;
+uint32_t bottom_count = 0;
+uint32_t top_fan_reading = 0;
+uint32_t bottom_fan_reading = 0;
+FreqMeasureMulti top_fan;
+FreqMeasureMulti bottom_fan;
 
 #define BME_ADDRESS 0x76
 Adafruit_BME280 bme; // use I2C interface
@@ -83,14 +88,16 @@ void setup()
     pinMode(VALVE_RLY, OUTPUT);
     pinMode(COMPRESSOR_RLY, OUTPUT);
     pinMode(ALARMS_RLY, OUTPUT);
+    pinMode(BOTTOM_FAN_PWM, OUTPUT);
+    analogWriteFrequency(BOTTOM_FAN_PWM, 25000);
+    analogWrite(BOTTOM_FAN_PWM, 0);
     digitalWrite(PUMP_RLY, LOW);
-    digitalWrite(VALVE_RLY, LOW);
+    digitalWrite(VALVE_RLY, HIGH);
     digitalWrite(COMPRESSOR_RLY, LOW);
     digitalWrite(ALARMS_RLY, LOW);
 
-    top_fan.begin();
-    bottom_fan.begin();
-    bottom_fan.setDutyCycle(0);
+    top_fan.begin(TOP_FAN_RPM);
+    bottom_fan.begin(BOTTOM_FAN_RPM);
 
     Serial.begin(9600);
     while (!Serial && millis() < 5000)
@@ -169,8 +176,16 @@ void loop()
     sensors_event_t temp_event, humidity_event;
     bme_temp->getEvent(&temp_event);
     bme_humidity->getEvent(&humidity_event);
-    top_fan_reading = top_fan.getSpeed();
-    bottom_fan_reading = bottom_fan.getSpeed();
+    if (top_fan.available())
+    {
+        top_sum = top_sum + top_fan.read();
+        top_count = top_count + 1;
+    }
+    if (bottom_fan.available())
+    {
+        bottom_sum = bottom_sum + bottom_fan.read();
+        bottom_count = bottom_count + 1;
+    }
     filterRA.addValue(analogRead(FILTER_P));
     sensors.requestTemperatures();
     reservoir_temp_reading = sensors.getTempC(reservoir_temp);
@@ -191,15 +206,15 @@ void loop()
 
     if (reservoir_temp_reading > reservoir_setpoint + hysteresis)
     {
-        if (digitalRead(VALVE_RLY) == LOW)
+        if (digitalRead(VALVE_RLY) == HIGH)
         {
             last_valve = millis();
-            digitalWrite(VALVE_RLY, HIGH);
+            digitalWrite(VALVE_RLY, LOW);
         }
         if (valve_time >= valve_lockout && compressor_time >= compressor_lockout)
         {
             last_compressor = millis();
-            bottom_fan.setDutyCycle(100);
+            analogWrite(BOTTOM_FAN_PWM, 255);
             digitalWrite(COMPRESSOR_RLY, HIGH);
         }
     }
@@ -209,9 +224,9 @@ void loop()
         {
             last_compressor = millis();
             last_valve = millis();
-            bottom_fan.setDutyCycle(0);
+            analogWrite(BOTTOM_FAN_PWM, 0);
             digitalWrite(COMPRESSOR_RLY, LOW);
-            digitalWrite(VALVE_RLY, LOW);
+            digitalWrite(VALVE_RLY, HIGH);
         }
     }
 
@@ -260,8 +275,29 @@ void loop()
             break;
         case 2:
             display.clearDisplay();
-            ringMeter("Top Fan", top_fan_reading, 0, 3200, 0, 0, GAUGE_RADIUS, "RPM");
-            ringMeter("Bot Fan", bottom_fan_reading, 0, 3200, SCREEN_WIDTH - 2 * GAUGE_RADIUS, 0, GAUGE_RADIUS, "RPM");
+            if (top_count > 0)
+            {
+                top_fan_reading = HZ_TO_RPM * top_fan.countToFrequency(top_sum / top_count);
+            }
+            else
+            {
+                top_fan_reading = 0;
+            }
+
+            if (bottom_count > 0)
+            {
+                bottom_fan_reading = HZ_TO_RPM * bottom_fan.countToFrequency(bottom_sum / bottom_count);
+            }
+            else
+            {
+                bottom_fan_reading = 0;
+            }
+            top_sum = 0;
+            bottom_sum = 0;
+            top_count = 0;
+            bottom_count = 0;
+            ringMeter("Top Fan", (int)top_fan_reading, 0, 3200, 0, 0, GAUGE_RADIUS, "RPM");
+            ringMeter("Bot Fan", (int)bottom_fan_reading, 0, 3200, SCREEN_WIDTH - 2 * GAUGE_RADIUS, 0, GAUGE_RADIUS, "RPM");
             display.display();
             break;
         case 3:

@@ -60,22 +60,22 @@ The external board listens to CAN and adjusts the chiller's power state and setp
 | Pin | Type    | Signal | Direction | Purpose                            |
 | --- | ------- | ------ | --------- | ---------------------------------- |
 | 1   | POWER   | GND    |           | Digital ground                     |
-| 2   | DIGITAL | D0     | INPUT     | Top fan RPM sensor                 |
-| 3   | DIGITAL | D1     | INPUT     | Bottom fan RPM sensor              |
 | 4   | 1-WIRE  | D2     | BIDI      | DS18B20 bus                        |
 | 5   | CAN     | TX     | OUTPUT    | CAN transmit                       |
 | 6   | CAN     | RX     | INPUT     | CAN receive                        |
-| 7   | DIGITAL | D5     | OUTPUT    | Fan PWM                            |
+| 7   | DIGITAL | D5     | INPUT     | Top fan RPM sensor                 |
+| 8   | DIGITAL | D6     | INPUT     | Bottom fan RPM sensor              |
 | 10  | DIGITAL | D8     | INPUT     | Flow switch                        |
 | 11  | DIGITAL | D9     | OUTPUT    | Pump relay                         |
 | 12  | DIGITAL | D10    | OUTPUT    | Expansion valve relay              |
 | 13  | DIGITAL | D11    | OUTPUT    | Compressor relay                   |
-| 14  | DIGITAL | D11    | OUTPUT    | Status lights/buzzer relay         |
+| 14  | DIGITAL | D12    | OUTPUT    | Status lights/buzzer relay         |
 | 21  | ANALOG  | A0     | INPUT     | Filter check diff. pressure sensor |
 | 23  | DIGITAL | D16    | INPUT     | VL53L0X XSHUT input                |
 | 24  | DIGITAL | D17    | INPUT     | VL53L0X GPIO1 input                |
 | 25  | I2C     | SDA0   | BIDI      | Local I2C data                     |
 | 26  | I2C     | SCL0   | BIDI      | Local I2C clock                    |
+| 27  | DIGITAL | D20    | OUTPUT    | Fan PWM                            |
 | 31  | POWER   | 3V3    |           | 3.3V output                        |
 | 32  | POWER   | AGND   |           | Analog ground                      |
 | 33  | POWER   | 5V     |           | 5V input from CAN                  |
