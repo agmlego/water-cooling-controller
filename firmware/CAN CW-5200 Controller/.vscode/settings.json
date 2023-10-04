@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
         "dtostrf"
-    ]
+    ],
+    "cmake.configureOnOpen": false
 }
