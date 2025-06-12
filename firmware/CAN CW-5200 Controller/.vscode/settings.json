@@ -4,5 +4,10 @@
         "dtostrf",
         "SWITCHCAPVCC"
     ],
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "files.associations": {
+        "*.script": "urscript",
+        "*.tmpl": "jinja",
+        "cstdint": "cpp"
+    }
 }
